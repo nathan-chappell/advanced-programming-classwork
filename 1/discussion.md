@@ -17,6 +17,10 @@
 * We should ask ourselves, *can we dig any deeper?* - let's check out how all this goes down in cpython
 * Hopefully we run into `__get__`
 
+## Exercise: JSON persistent python objects...
+* I wan't objects that persist themselves when the interpreter exits...
+* Idea: intercept attribute get/set to look at a file (e.g. `./.data.json`)
+
 ## Bonus!  You guys can help me figure something out...
 
 * how does accessing a method work?  We can read the docs, but it doesn't say anything about `__get__`
