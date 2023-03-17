@@ -1,7 +1,7 @@
 """
-This file contains a "hello world" program.
+This file contains a "hello world" program!
 """
-
+# fmt: off
 class UserDefinedType: ...
 
 instance = UserDefinedType()

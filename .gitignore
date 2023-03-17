@@ -1,11 +1,14 @@
 # editors
 .vscode/
 
+# python
+__pycache__
+
 # venv
 Include/
 Lib/
 Scripts/
-Shared/
+Share/
 pyvenv.cfg
 
 # experimenation
