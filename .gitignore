@@ -1,0 +1,12 @@
+# editors
+.vscode/
+
+# venv
+Include/
+Lib/
+Scripts/
+Shared/
+pyvenv.cfg
+
+# experimenation
+tmp/
