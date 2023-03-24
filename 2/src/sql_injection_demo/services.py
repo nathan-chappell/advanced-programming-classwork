@@ -15,16 +15,6 @@ db_engine = create_async_engine("sqlite+aiosqlite://")
 async_session = async_sessionmaker(db_engine)
 
 
-async def init_db():
-    async with db_engine.connect() as connection:
-        await connection.execute(
-            text("""CREATE TABLE IF NOT EXISTS user(username text primary key, password text, secrets text nullable)""")
-        )
-
-
-asyncio.get_event_loop().run_until_complete(init_db())
-
-
 class UserService:
     async def get_user(self, username: str, password: str) -> User | None:
         async with db_engine.connect() as connection:
@@ -70,3 +60,19 @@ class UserService:
             session.add(user)
             await session.commit()
         return result
+
+
+async def init_db():
+    values = [(f"user{i}", f"password{i}", f"secret{i}") for i in range(5)]
+    async with db_engine.connect() as connection:
+        await connection.execute(
+            text(f"""CREATE TABLE IF NOT EXISTS user(username text primary key, password text, secrets text nullable)""")
+        )
+        # await connection.execute(text(f"""INSERT INTO user VALUES {','.join(values)};"""))
+        service = UserService()
+        for vals in values:
+            await service.upsert_user(*vals)
+        await connection.commit()
+
+
+asyncio.get_event_loop().run_until_complete(init_db())
