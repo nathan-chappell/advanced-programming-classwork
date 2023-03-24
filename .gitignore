@@ -3,12 +3,13 @@
 
 # python
 __pycache__
+*egg-info*
 
 # venv
 Include/
 Lib/
 Scripts/
-Share/
+share/
 pyvenv.cfg
 
 # experimenation
