@@ -5,3 +5,4 @@ pytest
 sanic[ext]
 sanic-testing
 sqlalchemy[asyncio]
+aiosqlite
