@@ -1,0 +1,10 @@
+[tool.black]
+line-length = 140
+include = ['src', 'tests']
+
+[tool.pyright]
+include = ['src', 'tests']
+
+[tool.pytest.ini_options]
+asyncio_mode = 'auto'
+testpaths = ['tests']

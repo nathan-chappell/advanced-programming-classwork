@@ -1,0 +1,7 @@
+-e src
+black
+pyright
+pytest
+sanic[ext]
+sanic-testing
+sqlalchemy[asyncio]
