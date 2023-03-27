@@ -37,10 +37,16 @@ BUT! This requires we use
 * Demonstrate the relationship between logic and type-theory
     - Brief introduction to the *Curry-Howard correspondence*
 * Recursive types
-    - ...
+    - Infinite tree types
+    - Regular tree types and their relationship with [*regular languages*](https://en.wikipedia.org/wiki/Regular_language)
+    - $\mu$-notation
+* Polymorphism
+    - Subtype polymorphism
+    - Parametric polymorphism
+    - Ad-hoc polymorphism and dependent types.
 
 
-### Executive summary
+## Executive summary
 
 * Practically speaking, a *type* is metadata associated to a variable or parameter in a program.
 * Proper use of *type annotations* and a *type checker* can help ensure program correctness.
@@ -49,4 +55,57 @@ BUT! This requires we use
 * Some languages offer the ability to read, and even modify, information about types *at runtime.*  Such techniques are broadly called *reflection.*
 
 
+# Review of Python's type system
 
+## Type Annotations
+
+* `29-Sep-2014` [PEP 526 – Syntax for Variable Annotations](https://peps.python.org/pep-0526/#non-goals)
+* `19-Dec-2014` [PEP 483 – The Theory of Type Hints](https://peps.python.org/pep-0483/)
+* `08-Jan-2015` [PEP 482 – Literature Overview for Type Hints](https://peps.python.org/pep-0482/)
+* `09-Aug-2016` [PEP 484 – Type Hints](https://peps.python.org/pep-0484/#non-goals)
+
+
+https://peps.python.org/pep-0483/
+## Nominal Subtyping
+
+## Towards structural subtyping
+
+# A simplified type system
+
+## Base Types
+
+## Type constructors
+
+# Interpretation (set-theoretic implementation)
+
+## Review of how math itself is implemented
+
+# Curry howard correspondence
+
+# Recursive types
+
+## Intuition
+
+## Formalities
+
+## Notation
+
+## `JSON` excercise
+
+# Polymorphism
+
+## Subtype polymorphism
+
+## Parametric polymorphism
+
+## Ad-hoc polymorphism
+
+## System-F
+
+# General Discussion
+
+## The basic problems in typing
+
+## Complexity, decidability
+
+## Which lambda terms can be given a type?
