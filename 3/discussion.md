@@ -65,11 +65,37 @@ BUT! This requires we use
 * `08-Jan-2015` [PEP 482 – Literature Overview for Type Hints](https://peps.python.org/pep-0482/)
 * `09-Aug-2016` [PEP 484 – Type Hints](https://peps.python.org/pep-0484/#non-goals)
 
-
-https://peps.python.org/pep-0483/
 ## Nominal Subtyping
 
+* "Nominal Subtyping" refers to the "name-based" class hierarchies you can create in most OOP languages.
+
+```py
+class Base1:
+    x: int
+
+class Base2:
+    y: int
+
+class Derived1(Base1):
+    y: int
+
+class Derived2(Base1, Base2):
+    pass
+```
+
+![nominal_subytyping_example_hierarchy](./img/nominal_subytyping_example_hierarchy.svg)
+
+Pros:
+* simple, easy to implement and understand
+* traditional, explicit
+
+Cons:
+* many "essentially equivalent types" (see `Derived1` and `Derived2`)
+* traditional, explicit
+
 ## Towards structural subtyping
+* Protocols
+* Abstract Base Classes
 
 Consider the following classes:
 
@@ -96,6 +122,49 @@ def isomorphism(point_or_tuple) -> 'tuple_or_point':
     if isinstance(point_or_tuple, tuple): return Point2D(t[0], t[1])
     else: return (point_or_tuple.x, point_or_tuple.y)
 ```
+
+
+# A simplified type system
+
+* [`Callable`](https://docs.python.org/3.10/library/typing.html#callable)
+* [`tuple` and PEP 585 – Type Hinting Generics In Standard Collections](https://peps.python.org/pep-0585/)
+
+## Base Types (Built-in types)
+
+[The standard type hierarchy](https://docs.python.org/3.10/reference/datamodel.html#the-standard-type-hierarchy)
+
+The *essential* types
+
+* **`None`**
+* **`bool`**
+* **`tuple`**
+* **`Callable`**
+* We'll probably use **`int`** just to make our discussions more *concrete*
+
+Other special types:
+
+* Specials
+    - `NotImplemented`
+    - `Ellipsis`
+* Numeric
+    - `float`
+    - `complex`
+* Immutable Sequences
+    - `str`
+    - `bytes`
+* Mutable Sequences
+    - `list`
+    - `bytearrays`
+    - `complex`
+* Miscellaneous
+    - sets, dicts, functions, classes, generators, coroutines...
+
+## Abstraction: the operators and built-ins that we need...
+
+* **`bool`**
+* Product
+* Function
+* Subtype...
 
 Let's also notice that we can restrict our consideration to functions of only one variable.  Consider:
 
@@ -219,6 +288,14 @@ We must observe that we have a problem with $\land$ and $\times$ - one is symmet
 
 This line of thinking naturally leads to the [*categorical product*](https://en.wikipedia.org/wiki/Product_(category_theory)).  We will be satisfied in knowing that this inconsistency is not all that important - once we resolve the symmetry issue we'll be left with an object that is *isomorphic* to $\mathrm{Type}(A) \times \mathrm{Type}(B)$, so it seems like if we would rather just use $\mathrm{Type}(A) \times \mathrm{Type}(B)$ then we can.
 
+<!-- | Type Theory | Logic | Note |
+|--|--|--|
+| Type | Proposition | *Types ARE Propositions, built-in types ARE Propositional Variables*
+| implementation | proof | type-checking is proof-verification |
+| $\rightarrow$ | $\Rightarrow$ | *It may be that $\phi$ implies $\psi$, but $\phi \Rightarrow \psi$ IS a proposition* |
+| $\times$ | $\land$ | *Is $\times$ symmetric? Is $\land$ ?* |
+| `\|` | $\lor$ |*Is* `\|` *symmetric? Is $\lor$ ?* | -->
+
 ### Math vs Programming
 
 There is a cute asymmetry here in what is considered important.  A mathematician would like to get rid of all *unnecessary* information: the fact that we must refer to $0, 1 \in \mathbb{N}$ in order to get the values from our $\mathrm{Type}(A \land B)$ is unacceptable.  Why should the creation of a *product type* depend on our knowledge of *natural numbers?*  This is an unnecessary dependency, and we can get rid of it and replace our operators with more primitive notions.
@@ -248,11 +325,21 @@ Here are some axioms from set theory:
 
 ## Review of how math itself is implemented
 
+# Curry howard correspondence
+
+
+
+## Classic vs Intuitionist logic
+
+## Disjoint Union
+
 # Recursive types
 
 ## Intuition
 
 ## Formalities
+
+### Infinite Tree Types
 
 ## Notation
 
