@@ -336,9 +336,99 @@ We can relate many of these axioms to the concepts we've been developing.
 | **Replacement** | The range of a function is a type | discussion: must our functions be computable? |
 | **Powerset** | **function-type** | proof: exercise |
 
-**Conclusion:** draw your own conclusions.
+### Conclusion
+Draw your own conclusions.
 
 ## Classic vs Intuitionist logic
+
+Now that we've shown some sort of connection between logic and type-theory, it is natural to try and extend our theory on one side, and interpret it on the other.  For example, let's try to interpret logical negation.  First, we need a notion of "falsity," typically denoted $\bot$ (the *bottom* type).  In propositional logic, $1 \Rightarrow 0$ is false.  In type theory, we have that $\mathrm{Type}(1) \rightarrow \mathrm{Type}(0)$ is *uninhabited* - that is, there is no function from $\mathrm{Type}(1)$ to $\mathrm{Type}(0)$.  To see this, remember that for a function $f$ to have the type $f: T \rightarrow U$ it must satisfy:
+
+$$(\forall t \in T )(\exists ! u \in U) : f(t) = u$$
+
+Then if $U$ is empty, no $f$ can satisfy this formula unless $T$ is also empty.  **Exercise** interpret that logically.
+
+Once we have $\bot$, it is natural to identify
+
+$$ \mathrm{Type}(\lnot \phi) = \mathrm{Type}(\phi) \rightarrow \bot $$
+
+> By the type $\lnot T$, we mean that we know $T$ is uninhabited.  We "know" this because we have a function that can take a *value* of type $T$ and produce a *value* of type $\bot$ - which is impossible.
+
+These are rather satisfactory definitions, but further inspection can yield valuable insight.  In *classical logic*, we typically assume that for any proposition $\phi$, we have both
+
+$$\phi \Rightarrow \lnot \lnot \phi$$
+$$\lnot \lnot \phi \Rightarrow \phi$$
+
+The first of these transfers over to our extended type theory.
+
+> Suppose we know that $t: T$, that is, $T$ is inhabited.  We need to show that there is a function of type $(T \rightarrow \bot) \rightarrow \bot$.  We can show this by implementing it!
+> $$\Big((\lambda f: T \rightarrow \bot) (\lambda t: T) . f(t) \Big) : (T \rightarrow \bot) \rightarrow \bot$$
+
+**Exercise: type-check the above implementation**
+
+What about the second formula?
+
+> Suppose we have a function $f$, which can take a function $T \rightarrow \bot$ and produce a $\bot$.  Since this function exists, it seems like there should be some $t :T$, but can we prove it?  In particular, can we *construct* such a value, given $f$?
+
+Exercise: decide for yourself.
+
+## Heyting algebras
+
+The mathematical structures typically chosen to represent logic are algebras of some sort.  We will forgoe formal definitions, and skip straight to an interesting example.
+
+### Toplogical Prerequisites
+
+* Let $b(x, r) = \{y \in \mathbb{R^2}: ||x - y|| < r \}$.
+* A set $A \subseteq \mathbb{R^2}$ is called **open** if $ (\forall x \in A) (\exists r > 0) : b(x,y) \subseteq A$
+* Let $\bar{A} = \mathbb{R^2} \setminus A$
+* Let $\mathcal{O_2}$ denote the open subsets of $\mathbb{R^2}$.
+* A set $A$ is called **closed** if $\bar{A} \in \mathcal{O_2}$.
+* Let $\partial A$ denote the **boundary** of $A$: 
+$\partial A = \Big\{x: (\forall r > 0) \; \big( b(x, r)  \cap A \neq \empty \big) \land \big( b(x, r) \cap \bar{A} \neq \empty \big) \Big\} $
+* Let the **interior** of $A$ be defined as $\mathrm{Int}(A) = \cup \{O : O \in \mathcal{O_2} \land O \subseteq A \}$
+
+**Claim** the *interior* of a set is *open* (obvious...)
+
+**Claim** a set is *open* iff its equal to its interior: $A \in \mathcal{O_2} \iff \mathrm{Int}(A) = A$
+
+> Proof $\mathrm{Int}(A) \subseteq A$ by definition (it's the union of subsets of $A$).  On the other hand, if $a \in A$ then there is an open set $b(a, r_a) \subseteq A$, so $a \in A \Rightarrow a \in \mathrm{Int}(A)$ $\square$.
+
+**Claim** a set is *open* iff it does not intersect it's boundary: $A \in \mathcal{O_2} \iff \partial A \cap A = \empty$
+
+**Claim** a set is *closed* iff it contains it's boundary: $\bar{A} \in \mathcal{O_2} \iff \partial A \subseteq A$
+
+Exercise: prove the claims.
+
+**Question:** which sets, if any, are both *opened* and *closed*?
+
+**Answer:** $\mathbb{R^2}$ and $\empty$
+
+> Proof sketch: suppose $A$ is *open*, *closed*, and not empty.  Let $\a \in A$, and consider $\rho_a = \sup_{r > 0} b(a, r) \subseteq A$.  We know that $\rho_a > 0$ since $A$ is open.  Suppose $\rho_a < \infty$.  Let $x \not\in A$ such that $||x - a|| = \rho_a$.  Then "clearly" $x \in \partial A$ which means that $x \in A$ (since $A$ is closed), a contradiction $\square$.
+
+Therefore, we know that if some set $A$ is not $\empty$, $\mathbb{R^2}$, and $A$ is open, then $\bar{A} \not \in \mathcal{O_2}$.
+
+### Semantics of intuitionist logic through $\mathcal{O_2}$
+
+We consider the fragment of intuitionist logic consisting of:
+* Propositional variables
+* $\land$, $\lor$, $\Rightarrow$
+
+We interpret the sets of $\mathcal{O_2}$ as propositions, and consider the following interpretation operator $\mathrm{Heyting}(\phi)$:
+
+* $\mathrm{Heyting}(p) =$ the set assigned to $p$ for propositional variable $p$
+* $\mathrm{Heyting}(\phi \land \psi) = \mathrm{Heyting}(\phi) \cap \mathrm{Heyting}(\psi)$
+* $\mathrm{Heyting}(\phi \lor \psi) = \mathrm{Heyting}(\phi) \cup \mathrm{Heyting}(\psi)$
+* $\mathrm{Heyting}(\phi \Rightarrow \psi) = \mathrm{Int}\Big(\overline{\mathrm{Heyting}(\phi)} \cup \mathrm{Heyting}(\psi)\Big)$
+
+To understand the last interpretation, recall that in classical logic $\phi \Rightarrow \psi$ is equivalent to $\lnot \phi \lor \psi$.  Here we see how Heyting Algebras give us a good model: if $A$ and $B$ are open, then $\bar{A} \cup B$ is not necessarily open!  (*Exercise: example*!)  So, we take the "largest open set" which is contained in $\bar{A} \cup B$, i.e. we "project" this set down to an open one.
+
+To finish the discussion, lets try to see if what our model says about $\lnot \lnot \phi$.  Denote $A = \mathrm{Heyting}(\phi)$, and note that $\mathrm{Heyting}(\bot) = \empty$.  We should interpret $\lnot \lnot \phi$ as:
+
+$$ \mathrm{Heyting} \Big( (\phi \Rightarrow \bot) \Rightarrow \bot \Big)$$
+$$ \mathrm{Int}\Big(\overline{\mathrm{Heyting} (\phi \Rightarrow \bot)} \cup \empty\Big)$$
+$$ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A} \cup \empty)}\Big)$$
+$$ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big)$$
+
+**Exercise:** come up with a set $A$ such that $ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big) \neq A$.  *Hint:* what happens when you puncture $\mathbb{R^2}$?
 
 ## Disjoint Union
 
