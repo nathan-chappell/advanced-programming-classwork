@@ -1,0 +1,17 @@
+digraph {
+    graph [rankdir = "BT";];
+    node [fontname = "consolas"; shape = "rectangle";];
+    label = "\nExample of nominal subtyping.";
+    
+    Base1 [label = "Base1\n+x: int";];
+    Base2 [label = "Base2\n+y: int";];
+    
+    Derived1 [label = "Derived1\n x: int\n+y: int";];
+    Derived2 [label = "Derived2\n x: int\n y: int";];
+    
+    Base1 -> object;
+    Base2 -> object;
+    Derived1 -> Base1;
+    Derived2 -> Base1;
+    Derived2 -> Base2;
+}

@@ -64,17 +64,80 @@ BUT! This requires we use
 * `08-Jan-2015` [PEP 482 – Literature Overview for Type Hints](https://peps.python.org/pep-0482/)
 * `09-Aug-2016` [PEP 484 – Type Hints](https://peps.python.org/pep-0484/#non-goals)
 
-
-https://peps.python.org/pep-0483/
 ## Nominal Subtyping
+
+* "Nominal Subtyping" refers to the "name-based" class hierarchies you can create in most OOP languages.
+
+```py
+class Base1:
+    x: int
+
+class Base2:
+    y: int
+
+class Derived1(Base1):
+    y: int
+
+class Derived2(Base1, Base2):
+    pass
+```
+
+![nominal_subytyping_example_hierarchy](./img/nominal_subytyping_example_hierarchy.svg)
+
+Pros:
+* simple, easy to implement and understand
+* traditional, explicit
+
+Cons:
+* many "essentially equivalent types" (see `Derived1` and `Derived2`)
+* traditional, explicit
 
 ## Towards structural subtyping
 
+* Protocols
+* Abstract Base Classes
+
 # A simplified type system
 
-## Base Types
+* [`Callable`](https://docs.python.org/3.10/library/typing.html#callable)
+* [`tuple` and PEP 585 – Type Hinting Generics In Standard Collections](https://peps.python.org/pep-0585/)
 
-## Type constructors
+## Base Types (Built-in types)
+
+[The standard type hierarchy](https://docs.python.org/3.10/reference/datamodel.html#the-standard-type-hierarchy)
+
+The *essential* types
+
+* **`None`**
+* **`bool`**
+* **`tuple`**
+* **`Callable`**
+* We'll probably use **`int`** just to make our discussions more *concrete*
+
+Other special types:
+
+* Specials
+    - `NotImplemented`
+    - `Ellipsis`
+* Numeric
+    - `float`
+    - `complex`
+* Immutable Sequences
+    - `str`
+    - `bytes`
+* Mutable Sequences
+    - `list`
+    - `bytearrays`
+    - `complex`
+* Miscellaneous
+    - sets, dicts, functions, classes, generators, coroutines...
+
+## Abstraction: the operators and built-ins that we need...
+
+* **`bool`**
+* Product
+* Function
+* Subtype...
 
 # Interpretation (set-theoretic implementation)
 
@@ -82,11 +145,34 @@ https://peps.python.org/pep-0483/
 
 # Curry howard correspondence
 
+* Basic idea: we notice how the models of type-theory and logic share much in common.
+* We coerce them to fit each other
+* We interpret entities from one system in the other
+
+
+| Type Theory | Logic | Note |
+|--|--|--|
+| Type | Proposition | *Types ARE Propositions, built-in types ARE Propositional Variables*
+| implementation | proof | type-checking is proof-verification |
+| $\rightarrow$ | $\Rightarrow$ | *It may be that $\phi$ implies $\psi$, but $\phi \Rightarrow \psi$ IS a proposition* |
+| $\times$ | $\land$ | *Is $\times$ symmetric? Is $\land$ ?* |
+| `\|` | $\lor$ |*Is* `\|` *symmetric? Is $\lor$ ?* |
+
+## Valuations in logic
+
+### Interpreting valuations in Type-Theory
+
+## Classic vs Intuitionist logic
+
+## Disjoint Union
+
 # Recursive types
 
 ## Intuition
 
 ## Formalities
+
+### Infinite Tree Types
 
 ## Notation
 
