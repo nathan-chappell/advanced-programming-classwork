@@ -208,15 +208,18 @@ Let's see if we can use type theory to directly model logic.  We need an *empty 
 
 * $\mathrm{Type}(p)$ is `None` if $p$ is true, otherwise `Never`
 * $\mathrm{Type}(A \land B)$ is $\mathrm{Type}(A)\times\mathrm{Type}(B)$
-* $\mathrm{Set}(T \rightarrow U) = \mathrm{Set}(U)^{\mathrm{Set}(T)}$
-
-We must immediately observe that we have a problem with $\land$ and $\times$ - one is symmetric, while the other is not.  
+* $\mathrm{Type}(T \rightarrow U) = \mathrm{Type}(U)^{\mathrm{Type}(T)}$
 
 **Exercise:** verify that the above interpretation does indeed satisfy the semantics of our fragment.
 
-## Review of how math itself is implemented
+We must observe that we have a problem with $\land$ and $\times$ - one is symmetric, while the other is not.  This hasn't been a problem now because $0 \cdot 1 = 1 \cdot 0 = 0$.  To fix this "assymetry," we need to continue our abstractive process from earlier.  First, we forgot the names of *types*, then we forgot the names of *fields*, giving them all an index instead.  Now we must also forget about the *index,* and discover a generalization which does not depend on *position.*  Here's our requirements:
 
-# Curry howard correspondence
+* $\mathrm{Type}(A \land B) = \mathrm{Type}(B \land A) \simeq \mathrm{Type}(A) \times \mathrm{Type}(B)$
+* We need two functions: $\pi: \mathrm{Type}(A \land B) \rightarrow A$ and $\rho: \mathrm{Type}(A \land B) \rightarrow B$
+
+This line of thinking naturally leads to the [*categorical product*](https://en.wikipedia.org/wiki/Product_(category_theory)).  We will be satisfied in knowing that this inconsistency is not all that important - once we resolve the symmetry issue we'll be left with an object that is *isomorphic* to $\mathrm{Type}(A) \times \mathrm{Type}(B)$, so it seems like if we would rather just use $\mathrm{Type}(A) \times \mathrm{Type}(B)$ then we can.
+
+## Review of how math itself is implemented
 
 # Recursive types
 
