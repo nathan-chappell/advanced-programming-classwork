@@ -219,6 +219,33 @@ We must observe that we have a problem with $\land$ and $\times$ - one is symmet
 
 This line of thinking naturally leads to the [*categorical product*](https://en.wikipedia.org/wiki/Product_(category_theory)).  We will be satisfied in knowing that this inconsistency is not all that important - once we resolve the symmetry issue we'll be left with an object that is *isomorphic* to $\mathrm{Type}(A) \times \mathrm{Type}(B)$, so it seems like if we would rather just use $\mathrm{Type}(A) \times \mathrm{Type}(B)$ then we can.
 
+### Math vs Programming
+
+There is a cute asymmetry here in what is considered important.  A mathematician would like to get rid of all *unnecessary* information: the fact that we must refer to $0, 1 \in \mathbb{N}$ in order to get the values from our $\mathrm{Type}(A \land B)$ is unacceptable.  Why should the creation of a *product type* depend on our knowledge of *natural numbers?*  This is an unnecessary dependency, and we can get rid of it and replace our operators with more primitive notions.
+
+A programmer, however, will probably want to be a little more pragmatic.  We also don't like unnecessary dependencies, but we are not going to be praised for writing code that does not depend on any notion of *number* (you *would* have, about 100 years ago...).  Plus, as engineers, we typically like to give ourselves useful, but contradictory advice:
+
+* **KISS:** keep it simple stupid
+* **WTPA:** (don't) waste time on pointless abstractions
+
+On the one hand, by removing all dependencies we are making our program simpler.  There is no *our program is correct, assuming all the dependencies are properly implemented.*  On the other hand, we had better have a very good reason for introducing very strange objects and abstractions, and most people won't find the reason "we don't want to assume that numbers exist" very convincing (except for mathematicians - that's because they know that numbers don't really exist anyways).
+
+### Axioma vs Programming
+
+Here are some axioms from set theory:
+
+| Axiom | Meaning | Use |
+|--|--|--|
+| Existence | A set exists | We know the universe is not *empty* |
+| Extensionality | If two sets have the same elements they are equal | We can check for equality |
+| ~~Foundation~~ | No set is an element of itself | Technical, hard to justify conceptually... |
+| Comprehension | Subsets given by *formulas* are sets | Fundamental operation for creating new sets |
+| Union | The union of any *family of sets* is a set | Fundamental operation for creating new sets |
+| Replacement | The *range* of a *formula* is a set | Fundamental operation for creating new sets |
+| Powerset | The set of all subsets of a set exists | Fundamental operation for creating new sets |
+| ~~Infinity~~ | An infinite set exists | Construct $\omega$ (aka $\mathbb{N}$) |
+| ~~Axiom of Choice~~ | All sets can be well ordered | Either AoC or something like it is required to develop analysis |
+
 ## Review of how math itself is implemented
 
 # Recursive types
