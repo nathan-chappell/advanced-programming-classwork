@@ -216,6 +216,8 @@ t[0]
 f(s)
 ```
 
+We omit the formalities, but also allow expressions like `f(t[x])` and `t[f(u[0])]` - roughly speaking, the variables above could be replaced by any expression.
+
 ## Context
 
 We will adopt the following convention.  We will always consider a fixed *context* (or $\Gamma$), where all our declarations will be placed.  This way we can focus on the *expressions*, the interesting part of our language.
@@ -224,6 +226,10 @@ We will adopt the following convention.  We will always consider a fixed *contex
 
 Consider the following typing rules.
 
+* **Introduction Rules**
+* if `u_x: U` and `def f(x: T): return u_x`, then `f: Callable[[T], U]`
+* if `ti: Ti` for `1 <= i <= n`, then `(t1, t2, ..., tn): tuple[T1, T2, ..., Tn]`
+* **Elimination Rules**
 * if `x: T` and `f: Callable[[T], U]` then `f(x): U`
 * if `t: tuple[T1, T2, ..., TN]` and `i: int` and `1 <= i <= n`, then `t[i]: Ti`
 
@@ -297,51 +303,67 @@ This line of thinking naturally leads to the [*categorical product*](https://en.
 | $\times$ | $\land$ | *Is $\times$ symmetric? Is $\land$ ?* |
 | `\|` | $\lor$ |*Is* `\|` *symmetric? Is $\lor$ ?* | -->
 
-### Math vs Programming
+## Application: Disjoint Union
 
-There is a cute asymmetry here in what is considered important.  A mathematician would like to get rid of all *unnecessary* information: the fact that we must refer to $0, 1 \in \mathbb{N}$ in order to get the values from our $\mathrm{Type}(A \land B)$ is unacceptable.  Why should the creation of a *product type* depend on our knowledge of *natural numbers?*  This is an unnecessary dependency, and we can get rid of it and replace our operators with more primitive notions.
+Now that we've shown some sort of connection between logic and type-theory, it is natural to try and extend our theory on one side, and interpret it on the other.  For example, let's interpret the logical $\lor$ symbol.  To get an idea of what we're doing, let's consider how we prove $ \phi \lor \psi \Rightarrow \rho $.
 
-A programmer, however, will probably want to be a little more pragmatic.  We also don't like unnecessary dependencies, but we are not going to be praised for writing code that does not depend on any notion of *number* (you *would* have, about 100 years ago...).  Plus, as engineers, we typically like to give ourselves useful, but contradictory advice:
+> Suppose we know $\phi \lor \psi$.  If we know that both $\phi \Rightarrow \rho$ and $\psi \Rightarrow \rho$, then we can deduce $\rho$.  We don't know if $\phi$ or $\psi$ (or both) is true, but it doesn't matter, in either **case** we can deduce $\rho$.
 
-* **KISS:** keep it simple stupid
-* **WTPA:** (don't) waste time on pointless abstractions
+According to the correspondence, it seems that we need a $\mathrm{Type}(\phi \lor \psi)$.  Then, given an instance of $\mathrm{Type}(\phi \lor \psi)$, if we have a function $\mathrm{Type}(\phi) \rightarrow \mathrm{Type}(\rho)$ and a function $\mathrm{Type}(\psi) \rightarrow \mathrm{Type}(\rho)$, we can construct a $\rho$ from our instance of $\mathrm{Type}(\phi \lor \psi)$.
 
-On the one hand, by removing all dependencies we are trying to make our program simpler.  There is no *"our program is correct, assuming all the dependencies are properly implemented."*  On the other hand, we had better have a very good reason for introducing very strange objects and abstractions, since these *increase* the complexity of our program.  And most people won't find the reason "we don't want to assume that numbers exist" very convincing (except for mathematicians - that's because they know that numbers don't really exist anyways).
+### Python Implementation
 
-## Axioma vs Programming: the *implementation* of mathematics
+To make this more concrete, we extend our subset of python.  We repeat the subset for convenience:
 
-Here are some axioms from set theory:
+**Tuple Formation and Indexing**
 
-| Axiom | Form | Meaning | Use |
-|--|--|--|--|
-| Existence             | $$\exists x$$ | A set exists | We know the universe is not *empty* |
-| Extensionality        | $$ \forall z (z \in x \Leftrightarrow z \in y) \Rightarrow x = y $$ | If two sets have the same elements they are equal | We can check for equality (what about $\Leftarrow$ ?) |
-| ~~Foundation~~        | $$\forall x (x \notin x)$$ | No set is an element of itself | Technical, hard to justify conceptually... It disallows "circular definitions" which are actually useful in programming (e.g. *recursive types*)|
-| **Comprehension**     | $$\{x \in y : \phi(x) \}$$ | Subsets given by *formulas* are sets | Fundamental operation for creating new sets |
-| **Union**             | $$\cup z = \{x : \exists y (x \in y \land y \in z)\}$$ | The union of any *family of sets* is a set | Fundamental operation for creating new sets |
-| **Replacement**       | $$\{y : \exists x, y \; \phi(x, y) \}$$ | The *range* of a *formula* is a set | Fundamental operation for creating new sets |
-| **Powerset**          | $$\{ x : x \subseteq y \}$$ | The set of all subsets of a set exists | Fundamental operation for creating new sets |
-| ~~Infinity~~          | $$\exists x(0 \in x \land (n \in x \Rightarrow n + 1 \in x)$$ | An infinite set exists | Construct $\omega$ (aka $\mathbb{N}$) |
-| ~~Axiom of Choice~~   | $\forall X \exists f (x \in X \Rightarrow f(x) \in x)$ | All sets can be well ordered? | Either AoC or something like it is required to develop analysis |
+```python
+(x, y)
+t[0]
+```
 
-We can relate many of these axioms to the concepts we've been developing.
+**Function call**
 
-| Axiom | Type-theoretic counterpart | Notes |
-|--|--|--|
-| Existence | Built-in types | The exact "origin" of values seems to be more interesting from a mathematical perspective.  Without any "values" we probably wouldn't even be programming, let alone considering type systems. |
-| Extensionality | structural subtyping | sets carry no information about "names" |
-| *formula* | a function we can implement | We create sets using *formulas*, we'll create types using *functions* |
-| **Comprehension** | the *inverse-map* defines a new type (something like a custom `isinstance` implementation) | say $f : T \rightarrow \mathrm{bool}$.  Then we can define a type $T'$ such that $\Gamma \vdash t: T'$ $\Leftrightarrow$ $\Gamma \vdash t: T$ **and** $f(t) = \mathrm{True}$ |
-| **Union** | **disjoint-union** + **Replacement** | proof: exercise |
-| **Replacement** | The range of a function is a type | discussion: must our functions be computable? |
-| **Powerset** | **function-type** | proof: exercise |
+```python
+f(s)
+```
 
-### Conclusion
-Draw your own conclusions.
+**Disjoint Union (new)**
 
-## Classic vs Intuitionist logic
+```python
+z: X | Y
+x if type(z) == X else y
+```
 
-Now that we've shown some sort of connection between logic and type-theory, it is natural to try and extend our theory on one side, and interpret it on the other.  For example, let's try to interpret logical negation.  First, we need a notion of "falsity," typically denoted $\bot$ (the *bottom* type).  In propositional logic, $1 \Rightarrow 0$ is false.  In type theory, we have that $\mathrm{Type}(1) \rightarrow \mathrm{Type}(0)$ is *uninhabited* - that is, there is no function from $\mathrm{Type}(1)$ to $\mathrm{Type}(0)$.  To see this, remember that for a function $f$ to have the type $f: T \rightarrow U$ it must satisfy:
+And the same for typing rules:
+
+* **Introduction Rules**
+* if `u_x: U` and `def f(x: T): return u_x`, then `f: Callable[[T], U]`
+* if `ti: Ti` for `1 <= i <= n`, then `(t1, t2, ..., tn): tuple[T1, T2, ..., Tn]`
+* if `x: X`, then `x: X | T1 | T2 | ... | Tn`
+* **Elimination Rules**
+* if `x: T` and `f: Callable[[T], U]` then `f(x): U`
+* if `t: tuple[T1, T2, ..., TN]` and `i: int` and `1 <= i <= n`, then `t[i]: Ti`
+* if `t: T1 | T2 | ... | Tn`, and for all `1 <= i <= n` it holds that `ti_t: T`, then 
+
+`t1_t if type(t) == T1 else t2_t if type(t) == T2 else ... else tn  : T`
+
+Notice, because we used `type(t) == T1` to check types, the `|` operator is *symmetric.*  What happens if we use `isinstance`?
+
+Formally, we interpret:
+
+* $\mathrm{Set}(T_1 \;|\; T_2 \;|\; \dots T_n) = \bigcup \big\{ \{i\} \times \mathrm{Set}(T_i) : 1 \leq i \leq n \big\}$
+* $\mathrm{Type}(\phi_1 \lor \phi_2 \lor \dots \lor \phi_n) = \mathrm{Type}(\phi_1) \;|\;\mathrm{Type}(\phi_2) \;|\; \dots \;|\; \mathrm{Type}(\phi_n)$
+
+Exercise: play around with the type system...
+
+**Technical Note:** we did something bad.  We let `x: X` all of the sudden assume *multiple types!*  We've seen something like this before with subtyping, but we have not introduced it into our formal system.  This problem is typically addressed in formal treatments by introducing a *type constructor*, that will essentially *wrap* a value, and then *unwrap* it later.  This is very strange in python, and would be awkward.
+
+**BUT** there is good news.  Disjoint union pops up a lot in programming, we will take a look at [`C++ union`](https://en.cppreference.com/w/cpp/language/union).  Question: why can't (couldn't, shouldn't?) unions have virtual methods?
+
+# Classic vs Intuitionist logic
+
+Now let's try to interpret logical negation.  First, we need a notion of "falsity," typically denoted $\bot$ (the *bottom* type).  In propositional logic, $1 \Rightarrow 0$ is false.  In type theory, we have that $\mathrm{Type}(1) \rightarrow \mathrm{Type}(0)$ is *uninhabited* - that is, there is no function from $\mathrm{Type}(1)$ to $\mathrm{Type}(0)$.  To see this, remember that for a function $f$ to have the type $f: T \rightarrow U$ it must satisfy:
 
 $$(\forall t \in T )(\exists ! u \in U) : f(t) = u$$
 
@@ -429,6 +451,49 @@ $$ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A} \cup \empty)}\Big)$$
 $$ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big)$$
 
 **Exercise:** come up with a set $A$ such that $ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big) \neq A$.  *Hint:* what happens when you puncture $\mathbb{R^2}$?
+
+
+## Math vs Programming
+
+There is a cute asymmetry here in what is considered important.  A mathematician would like to get rid of all *unnecessary* information: the fact that we must refer to $0, 1 \in \mathbb{N}$ in order to get the values from our $\mathrm{Type}(A \land B)$ is unacceptable.  Why should the creation of a *product type* depend on our knowledge of *natural numbers?*  This is an unnecessary dependency, and we can get rid of it and replace our operators with more primitive notions.
+
+A programmer, however, will probably want to be a little more pragmatic.  We also don't like unnecessary dependencies, but we are not going to be praised for writing code that does not depend on any notion of *number* (you *would* have, about 100 years ago...).  Plus, as engineers, we typically like to give ourselves useful, but contradictory advice:
+
+* **KISS:** keep it simple stupid
+* **WTPA:** (don't) waste time on pointless abstractions
+
+On the one hand, by removing all dependencies we are trying to make our program simpler.  There is no *"our program is correct, assuming all the dependencies are properly implemented."*  On the other hand, we had better have a very good reason for introducing very strange objects and abstractions, since these *increase* the complexity of our program.  And most people won't find the reason "we don't want to assume that numbers exist" very convincing (except for mathematicians - that's because they know that numbers don't really exist anyways).
+
+## Axioma vs Programming: the *implementation* of mathematics
+
+Here are some axioms from set theory:
+
+| Axiom | Form | Meaning | Use |
+|--|--|--|--|
+| Existence             | $$\exists x$$ | A set exists | We know the universe is not *empty* |
+| Extensionality        | $$ \forall z (z \in x \Leftrightarrow z \in y) \Rightarrow x = y $$ | If two sets have the same elements they are equal | We can check for equality (what about $\Leftarrow$ ?) |
+| ~~Foundation~~        | $$\forall x (x \notin x)$$ | No set is an element of itself | Technical, hard to justify conceptually... It disallows "circular definitions" which are actually useful in programming (e.g. *recursive types*)|
+| **Comprehension**     | $$\{x \in y : \phi(x) \}$$ | Subsets given by *formulas* are sets | Fundamental operation for creating new sets |
+| **Union**             | $$\cup z = \{x : \exists y (x \in y \land y \in z)\}$$ | The union of any *family of sets* is a set | Fundamental operation for creating new sets |
+| **Replacement**       | $$\{y : \exists x, y \; \phi(x, y) \}$$ | The *range* of a *formula* is a set | Fundamental operation for creating new sets |
+| **Powerset**          | $$\{ x : x \subseteq y \}$$ | The set of all subsets of a set exists | Fundamental operation for creating new sets |
+| ~~Infinity~~          | $$\exists x(0 \in x \land (n \in x \Rightarrow n + 1 \in x)$$ | An infinite set exists | Construct $\omega$ (aka $\mathbb{N}$) |
+| ~~Axiom of Choice~~   | $\forall X \exists f (x \in X \Rightarrow f(x) \in x)$ | All sets can be well ordered? | Either AoC or something like it is required to develop analysis |
+
+We can relate many of these axioms to the concepts we've been developing.
+
+| Axiom | Type-theoretic counterpart | Notes |
+|--|--|--|
+| Existence | Built-in types | The exact "origin" of values seems to be more interesting from a mathematical perspective.  Without any "values" we probably wouldn't even be programming, let alone considering type systems. |
+| Extensionality | structural subtyping | sets carry no information about "names" |
+| *formula* | a function we can implement | We create sets using *formulas*, we'll create types using *functions* |
+| **Comprehension** | the *inverse-map* defines a new type (something like a custom `isinstance` implementation) | say $f : T \rightarrow \mathrm{bool}$.  Then we can define a type $T'$ such that $\Gamma \vdash t: T'$ $\Leftrightarrow$ $\Gamma \vdash t: T$ **and** $f(t) = \mathrm{True}$ |
+| **Union** | **disjoint-union** + **Replacement** | proof: exercise |
+| **Replacement** | The range of a function is a type | discussion: must our functions be computable? |
+| **Powerset** | **function-type** | proof: exercise |
+
+### Conclusion
+Draw your own conclusions.
 
 ## Disjoint Union
 
