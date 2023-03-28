@@ -94,6 +94,7 @@ Cons:
 * traditional, explicit
 
 ## Towards structural subtyping
+
 * Protocols
 * Abstract Base Classes
 
@@ -305,29 +306,37 @@ A programmer, however, will probably want to be a little more pragmatic.  We als
 * **KISS:** keep it simple stupid
 * **WTPA:** (don't) waste time on pointless abstractions
 
-On the one hand, by removing all dependencies we are making our program simpler.  There is no *our program is correct, assuming all the dependencies are properly implemented.*  On the other hand, we had better have a very good reason for introducing very strange objects and abstractions, and most people won't find the reason "we don't want to assume that numbers exist" very convincing (except for mathematicians - that's because they know that numbers don't really exist anyways).
+On the one hand, by removing all dependencies we are trying to make our program simpler.  There is no *"our program is correct, assuming all the dependencies are properly implemented."*  On the other hand, we had better have a very good reason for introducing very strange objects and abstractions, since these *increase* the complexity of our program.  And most people won't find the reason "we don't want to assume that numbers exist" very convincing (except for mathematicians - that's because they know that numbers don't really exist anyways).
 
-### Axioma vs Programming
+## Axioma vs Programming: the *implementation* of mathematics
 
 Here are some axioms from set theory:
 
-| Axiom | Meaning | Use |
+| Axiom | Form | Meaning | Use |
+|--|--|--|--|
+| Existence             | $$\exists x$$ | A set exists | We know the universe is not *empty* |
+| Extensionality        | $$ \forall z (z \in x \Leftrightarrow z \in y) \Rightarrow x = y $$ | If two sets have the same elements they are equal | We can check for equality (what about $\Leftarrow$ ?) |
+| ~~Foundation~~        | $$\forall x (x \notin x)$$ | No set is an element of itself | Technical, hard to justify conceptually... It disallows "circular definitions" which are actually useful in programming (e.g. *recursive types*)|
+| **Comprehension**     | $$\{x \in y : \phi(x) \}$$ | Subsets given by *formulas* are sets | Fundamental operation for creating new sets |
+| **Union**             | $$\cup z = \{x : \exists y (x \in y \land y \in z)\}$$ | The union of any *family of sets* is a set | Fundamental operation for creating new sets |
+| **Replacement**       | $$\{y : \exists x, y \; \phi(x, y) \}$$ | The *range* of a *formula* is a set | Fundamental operation for creating new sets |
+| **Powerset**          | $$\{ x : x \subseteq y \}$$ | The set of all subsets of a set exists | Fundamental operation for creating new sets |
+| ~~Infinity~~          | $$\exists x(0 \in x \land (n \in x \Rightarrow n + 1 \in x)$$ | An infinite set exists | Construct $\omega$ (aka $\mathbb{N}$) |
+| ~~Axiom of Choice~~   | $\forall X \exists f (x \in X \Rightarrow f(x) \in x)$ | All sets can be well ordered? | Either AoC or something like it is required to develop analysis |
+
+We can relate many of these axioms to the concepts we've been developing.
+
+| Axiom | Type-theoretic counterpart | Notes |
 |--|--|--|
-| Existence | A set exists | We know the universe is not *empty* |
-| Extensionality | If two sets have the same elements they are equal | We can check for equality |
-| ~~Foundation~~ | No set is an element of itself | Technical, hard to justify conceptually... |
-| Comprehension | Subsets given by *formulas* are sets | Fundamental operation for creating new sets |
-| Union | The union of any *family of sets* is a set | Fundamental operation for creating new sets |
-| Replacement | The *range* of a *formula* is a set | Fundamental operation for creating new sets |
-| Powerset | The set of all subsets of a set exists | Fundamental operation for creating new sets |
-| ~~Infinity~~ | An infinite set exists | Construct $\omega$ (aka $\mathbb{N}$) |
-| ~~Axiom of Choice~~ | All sets can be well ordered | Either AoC or something like it is required to develop analysis |
+| Existence | Built-in types | The exact "origin" of values seems to be more interesting from a mathematical perspective.  Without any "values" we probably wouldn't even be programming, let alone considering type systems. |
+| Extensionality | structural subtyping | sets carry no information about "names" |
+| *formula* | a function we can implement | We create sets using *formulas*, we'll create types using *functions* |
+| **Comprehension** | the *inverse-map* defines a new type (something like a custom `isinstance` implementation) | say $f : T \rightarrow \mathrm{bool}$.  Then we can define a type $T'$ such that $\Gamma \vdash t: T'$ $\Leftrightarrow$ $\Gamma \vdash t: T$ **and** $f(t) = \mathrm{True}$ |
+| **Union** | **disjoint-union** + **Replacement** | proof: exercise |
+| **Replacement** | The range of a function is a type | discussion: must our functions be computable? |
+| **Powerset** | **function-type** | proof: exercise |
 
-## Review of how math itself is implemented
-
-# Curry howard correspondence
-
-
+**Conclusion:** draw your own conclusions.
 
 ## Classic vs Intuitionist logic
 
