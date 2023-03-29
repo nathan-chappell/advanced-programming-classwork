@@ -1,0 +1,7 @@
+<product id="int-list">
+    <int />
+    <union>
+        <none />
+        <type-ref ref="int-list" />
+    </union>
+</product>
