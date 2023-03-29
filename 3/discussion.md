@@ -450,7 +450,7 @@ $$ \mathrm{Int}\Big(\overline{\mathrm{Heyting} (\phi \Rightarrow \bot)} \cup \em
 $$ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A} \cup \empty)}\Big)$$
 $$ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big)$$
 
-**Exercise:** come up with a set $A$ such that $ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big) \neq A$.  *Hint:* what happens when you puncture $\mathbb{R^2}$?
+**Exercise:** come up with a set $A \in \mathcal{O_2}$ such that $ \mathrm{Int}\Big(\overline{\mathrm{Int}(\overline{A})}\Big) \neq A$.  *Hint:* what happens when you puncture $\mathbb{R^2}$?
 
 
 ## Math vs Programming
@@ -488,18 +488,130 @@ We can relate many of these axioms to the concepts we've been developing.
 | Extensionality | structural subtyping | sets carry no information about "names" |
 | *formula* | a function we can implement | We create sets using *formulas*, we'll create types using *functions* |
 | **Comprehension** | the *inverse-map* defines a new type (something like a custom `isinstance` implementation) | say $f : T \rightarrow \mathrm{bool}$.  Then we can define a type $T'$ such that $\Gamma \vdash t: T'$ $\Leftrightarrow$ $\Gamma \vdash t: T$ **and** $f(t) = \mathrm{True}$ |
+| **Replacement** | The range of a function is a type | discussion: must our functions be *computable*? |
 | **Union** | **disjoint-union** + **Replacement** | proof: exercise |
-| **Replacement** | The range of a function is a type | discussion: must our functions be computable? |
 | **Powerset** | **function-type** | proof: exercise |
 
 ### Conclusion
 Draw your own conclusions.
 
-## Disjoint Union
-
 # Recursive types
 
-## Intuition
+## Introduction
+
+Suppose we have a python type like the following:
+
+```python
+from __future__ import annotations # what the heck is this?
+
+class ListInt:
+    value: int
+    next: ListInt | None
+```
+
+This type will not be strange to anyone familiar with OOP.  But the definition of `ListInt` is circular!  That is, in order to define `ListInt` we must first know what `ListInt` is.
+
+I don't want to waste a lot of time on the obvious, intutitive stuff.  We'll do two exercises, then discuss notation, then do a rather unorthodox presentation of the formalities.
+
+**Exercise:** How do you define recursive types in C++?
+
+**Exercise:** What would happen if we defined `ListInt` like so:
+```python
+class ListInt:
+    value: int
+    next: ListInt
+```
+
+## Notation for $\mu$-types
+
+These types are introduced in a mathematical setting by using a $\mu$-binding-operator.
+
+We start off by presenting the $\mu$-type representing `ListInt`.  Let $Z$ denote `int`, and consider:
+
+$$ \mu L. Z \times (1 \;|\; L)$$
+
+This binding operator is used to express the equation:
+
+$$ L = Z \times (1 \;|\; L)$$
+
+Somewhat more formally, we extend our *mathematical* type system by allowing types which conform to the following grammar:
+
+* $T \mapsto $ built-in type
+* $T \mapsto (T)$
+* $T \mapsto T \times T$
+* $T \mapsto T \;|\; T$
+* $T \mapsto T \rightarrow T$
+* $T \mapsto \mu V.T$ where $V$ is an *identifier*
+
+**Note**: our grammar is ambiguous.  We will resolve all ambiguities when discussing examples, and our "unorthodox" treatment later will not suffer from the same issues.
+
+**Note**: while our grammar allows for binding multiple variables (e.g. $\mu A \mu B . A \times B$), this doesn't actually accomplish anything and we won't bother about it.  
+
+**Note**: our grammar intentionally allows for nested recursive definitions, which are useful.  For instance:
+
+$$ Z \times \big(\mu L. Z \times (1 \;|\; L)\big) \big(\mu L. Z \times (1 \;|\; L)\big)$$
+
+Compare this to:
+
+```python
+class TwoListInts:
+    z: int
+    list1: ListInt
+    list2: ListInt
+```
+
+**Exercise:** write the type of a binary tree (of `int`s) in $\mu$-type notation
+
+## Towards Algebraic Data Types (ADTs)
+
+Let $T$ and $U$ be types.
+
+* A *conversion between $T$ and $U$* is a pair of functions, $T^\to_U: T \to U$ and $U^\to_T: U \to T$
+* A *conversion between $T$ and $U$* is *lossless* if $(\lambda t: T).U^\to_T(T^\to_U(t))$ is the *identity function*
+* One type is *isomorphic* to another if there is a lossless conversion between them, denoted $T \simeq U$
+
+**Exercise:** argue that $\simeq$ is an equivalence relation
+
+Let's change our notation slightly, and use $+$ in place of $|$ for disjoint union.  Later we will also write $T\to U$ as $U^T$.
+
+**Exercise:** prove the following:
+
+| Form | Name |
+|--|--|
+| $ T + (U + V) \simeq (T + U) + V$ | *associativity* |
+| $ T \times (U \times V) \simeq (T \times U) \times V$ | *associativity*  |
+| $ T + U \simeq U + T $ | *commutativity* |
+| $ T \times U \simeq U \times T $ | *commutativity*  |
+| $ T \times (U + V) \simeq T \times U + T \times V$ | *distributivity* |
+| $ (T + U) \times V \simeq T \times V + U \times V$ | *distributivity* |
+| $ T + 0 \simeq T $ | *identity* |
+| $ T \times 1 \simeq T $ | *identity* |
+| $ T \times 0 \simeq 0 $ | *annihilator* |
+
+Okay, you get the idea, we can cast our type theory to some sort of arithmetic over non-negative integers.  This is mostly cute, but sometimes it is useful...
+
+**Exercise:** Prove (and name) the following formula:
+
+$$ A^{B \times C} \simeq {A^C}^B $$
+
+Note that ${A^C}^B = (A^C)^B$ by convention, and does not (cannot?) be "proven."
+
+## ADTs and $\mu$-types
+
+Recall that $\frac{1}{1-x} = \sum_{k=0}^{\infty} x^k$.  Let's try to "solve" our recursive type formula for `ListInt`:
+
+$$T = Z \times (1 + T)$$
+
+If we pretend that those variables are real numbers, the we have:
+
+* $T = Z \times (1 + T)$
+* $T = Z + Z \times T$
+* $T - Z \times T = Z$
+* $T \times (1 - Z) = Z$
+* $T = \frac{Z}{1-Z} = Z \times \sum_{k=0}^{\infty} Z^k = \sum_{k=1}^{\infty} Z^k$
+
+**Discussion:** why is this reasoning *nonsense?*
+**Discussion:** why is this reasoning *correct?*
 
 ## Formalities
 
