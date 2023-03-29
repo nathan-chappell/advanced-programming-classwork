@@ -64,17 +64,44 @@ def iterate_type(
             iteration_info.labeled_nodes[_id] = t
 
 
+def diff_types(filename_l: str, filename_r: str, MAX_ITER=500) -> tuple[int, minidom.Element | None, minidom.Element | None]:
+    for i, (l, r) in enumerate(
+        zip(
+            iterate_type(filename_l, stop_when_all_visited=False),
+            iterate_type(filename_r, stop_when_all_visited=False),
+        )
+    ):
+        if l[0].tagName != r[0].tagName:
+            return i, l[0], r[0]
+        if l[1].all_nodes_visited and r[1].all_nodes_visited:
+            return 0, None, None
+        if i > MAX_ITER:
+            raise Exception(f"Exceeded {MAX_ITER=}")
+    return 0, None, None
+
+
 if __name__ == "__main__":
     import argparse
     import sys
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("filename")
+    argparser.add_argument("-p", "--print")
+    argparser.add_argument("-d", "--diff", nargs=2)
     argparser.add_argument("-v", "--verbose", action="store_true")
     args = argparser.parse_args(sys.argv[1:])
 
-    for node, info in iterate_type(args.filename):
+    if args.print:
+        for node, info in iterate_type(args.print):
+            if args.verbose:
+                print(f"{node.tagName} {len(info.visited_nodes)}/{info.total_nodes}")
+            else:
+                print(f"{node.tagName}")
+    else:
+        if len(args.diff) < 2:
+            raise Exception("If not printing, then two diff args must be present")
+        dist, l, r = diff_types(args.diff[0], args.diff[1])
         if args.verbose:
-            print(f"{node.tagName} {len(info.visited_nodes)}/{info.total_nodes}")
+            print(f"{dist=} {l.tagName if l is not None else None} {r.tagName if r is not None else None}")
         else:
-            print(f"{node.tagName}")
+            print(f"{dist}")
+
